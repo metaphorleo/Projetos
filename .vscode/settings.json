@@ -1,14 +1,12 @@
 {
   // editor
   "editor.wordWrap": "on",
-  "editor.fontSize": 18,
+  "editor.fontSize": 14,
   "editor.lineHeight": 30,
   "editor.tabSize": 2,
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
   "editor.minimap.enabled": false,
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
 
   // explorer
   "explorer.compactFolders": false,
