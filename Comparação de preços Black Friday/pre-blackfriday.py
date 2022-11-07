@@ -7,24 +7,37 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 navegador = Chrome(service=Service(ChromeDriverManager().install()))
 
-conexao = sqlite3.connect('db.sqlite3')
+db = r"C:\Users\Leonardo\Documents\GitHub\Projetos\Comparação de preços Black Friday\db.sqlite3"
+conexao = sqlite3.connect(db)
 cursor = conexao.cursor()
 
-def listarProduto(url, categoria):
-    navegador.get(url)
-    time.sleep(5)
-    produtos = navegador.find_elements(By.CSS_SELECTOR, 'div.sc-ff8a9791-7.dZlrn.productCard')
-    for produto in produtos:
-        item = produto.find_element(By.TAG_NAME, 'h2').text
-        preco = produto.find_element(By.CSS_SELECTOR, 'span.sc-3b515ca1-2.jTvomc.priceCard').text
-        sql = f'INSERT INTO {categoria} (item, preco) VALUES (?, ?)'
-        valores = [item, preco]
-        cursor.execute(sql, valores)
+class produto():
+    def __init__(self, url, categ):
+        self.url = url
+        self.categ = categ
 
-listarProduto('https://www.kabum.com.br/perifericos/headset-gamer?page_number=1&page_size=100&facet_filters=eyJtYW51ZmFjdHVyZXIiOlsiUkVERFJBR09OIiwiUmVkcmFnb24iXX0=&sort=most_searched', 'headsetpre')
-listarProduto('https://www.kabum.com.br/hardware/ssd-2-5/ssd-sata?page_number=1&page_size=100&facet_filters=&sort=most_searched', 'ssdpre')
-listarProduto('https://www.kabum.com.br/hardware/placa-de-video-vga/placa-de-video-nvidia?page_number=1&page_size=100&facet_filters=&sort=most_searched', 'placadevideopre')
-listarProduto('https://www.kabum.com.br/perifericos/suportes/suporte-para-monitor?page_number=1&page_size=100&facet_filters=&sort=most_searched', 'suporteparamonitorpre')
+    def listarProduto(self):
+        navegador.get(self.url)
+        time.sleep(5)
+        produtos = navegador.find_elements(By.CSS_SELECTOR, 'div.sc-ff8a9791-7.dZlrn.productCard')
+        for produto in produtos:
+            categoria = self.categ
+            item = produto.find_element(By.TAG_NAME, 'h2').text
+            preco = float(produto.find_element(By.CSS_SELECTOR, 'span.sc-3b515ca1-2.jTvomc.priceCard').text.replace("R$ ", "").replace(".", "").replace(",", "."))
+            sql = f'INSERT INTO preblackfriday (categoria, item, preco) VALUES (?, ?, ?)'
+            valores = [categoria, item, preco]
+            cursor.execute(sql, valores)
+
+link_headset = produto("https://www.kabum.com.br/perifericos/headset-gamer/com-fio?page_number=1&page_size=100&facet_filters=eyJtYW51ZmFjdHVyZXIiOlsiUmVkcmFnb24iLCJSRUREUkFHT04iXX0=&sort=most_searched", "headset")
+link_gabinete = produto("https://www.kabum.com.br/perifericos/gabinetes/gabinete-mid-tower?page_number=1&page_size=100&facet_filters=eyJtYW51ZmFjdHVyZXIiOlsiUmVkcmFnb24iXX0=&sort=most_searched", "gabinete")
+link_gpu = produto("https://www.kabum.com.br/hardware/placa-de-video-vga?page_number=1&page_size=100&facet_filters=eyJNZW3Ds3JpYSI6WyI4IEdCIiwiMTIgR0IiXX0=&sort=most_searched", "gpu")
+link_ssd = produto("https://www.kabum.com.br/hardware/ssd-2-5/ssd-sata?page_number=1&page_size=100&facet_filters=&sort=most_searched", "ssd")
+link_mesa = produto("https://www.kabum.com.br/espaco-gamer/mesa-gamer?page_number=1&page_size=100&facet_filters=&sort=most_searched", "mesa")
+
+lista = [link_headset, link_gabinete, link_gpu, link_ssd, link_mesa]
+
+for i in lista:
+    i.listarProduto()
 
 navegador.close()
 conexao.commit()
